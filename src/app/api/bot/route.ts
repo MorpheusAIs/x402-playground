@@ -3,16 +3,17 @@ import * as cheerio from "cheerio";
 import { NextRequest, NextResponse } from "next/server";
 import { wrapFetchWithPayment } from "x402-fetch";
 import { chain, getOrCreatePurchaserAccount } from "@/lib/accounts";
-import { createWalletClient, http } from "viem";
+import { createWalletClient, http, type Account } from "viem";
 import { waitUntil } from "@vercel/functions";
 
 type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
-const account = await getOrCreatePurchaserAccount();
+const serverAccount = await getOrCreatePurchaserAccount();
+const account = await serverAccount.useNetwork(env.NETWORK);
 const walletClient = createWalletClient({
   chain,
   transport: http(),
-  account,
+  account: account as unknown as Account,
 });
 
 export async function GET(request: NextRequest) {
