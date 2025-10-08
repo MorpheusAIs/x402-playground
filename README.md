@@ -6,27 +6,30 @@
 
 [x402](https://x402.org) is a new protocol built on top of HTTP for doing fully accountless payments easily, quickly, cheaply and securely.
 
-This template built with [Next.js](https://nextjs.org), [AI SDK](https://ai-sdk.dev), [AI Elements](https://ai-elements.dev), and [AI Gateway](https://vercel.com/ai-gateway) and the [Coinbase CDP](https://docs.cdp.coinbase.com/) shows off using x402 with a modern AI stack.
+This template built with [Next.js](https://nextjs.org), [AI SDK](https://ai-sdk.dev), [AI Elements](https://ai-elements.dev), and direct AI provider APIs (OpenAI, Anthropic, Google) and the [Coinbase CDP](https://docs.cdp.coinbase.com/) shows off using x402 with a modern AI stack.
 
 **Demo: [https://x402-ai-starter.vercel.app/](https://x402-ai-starter.vercel.app/)**
 
 ## Features
 
-- AI Chat + API playground to see x402 in action
-- AI agent that can pay for tools
-- Remote MCP server with "paid" tools
-- Paywalled APIs
-- Paywalled pages (for bots)
-- Secure server managed wallets
+- **Multi-Provider AI Support**: Choose from OpenAI, Anthropic (Claude), or Google AI models
+- **AI Chat + API Playground**: Interactive chat interface with x402 payment integration
+- **AI Agent with Paid Tools**: MCP server with tools that cost real money (USDC)
+- **Paywalled APIs**: Secure API endpoints that require payment
+- **Paywalled Pages**: Content protected for bots/scrapers
+- **Secure Server Wallets**: Coinbase CDP-managed wallets with automatic funding
 
 ## Tech Stack
 
-- [Next.js](https://nextjs.org/)
-- [AI SDK](https://ai-sdk.dev)
-- [AI Elements](https://ai-elements.dev)
-- [AI Gateway](https://vercel.com/ai-gateway)
-- [Coinbase CDP](https://docs.cdp.coinbase.com/)
-- [x402](https://x402.org)
+- [Next.js](https://nextjs.org/) - React framework with App Router
+- [AI SDK](https://ai-sdk.dev) - Unified AI model interface
+- [AI Elements](https://ai-elements.dev) - AI-powered UI components
+- [OpenAI API](https://platform.openai.com/) - GPT models
+- [Anthropic API](https://console.anthropic.com/) - Claude models
+- [Google AI API](https://makersuite.google.com/) - Gemini models
+- [Coinbase CDP](https://docs.cdp.coinbase.com/) - Server-managed wallets
+- [x402](https://x402.org) - Accountless payments protocol
+- [MCP](https://modelcontextprotocol.io/) - Model Context Protocol
 
 ## Getting Started
 
@@ -42,14 +45,22 @@ pnpm install
 
 2. Following `.env.example`, set the following environment variables in `.env.local`:
 
-- `CDP_API_KEY_ID`
-- `CDP_API_KEY_SECRET`
-- `CDP_WALLET_SECRET`
+**Required for payments:**
+- `CDP_API_KEY_ID` - Your Coinbase Developer Platform API key ID
+- `CDP_API_KEY_SECRET` - Your Coinbase Developer Platform API key secret
+- `CDP_WALLET_SECRET` - Your Coinbase Developer Platform wallet secret
 
-Using AI Gateway requires either a Vercel OIDC token, or an API Key.
-To get an OIDC token, simply run `vc link` then `vc env pull`. An API can be obtained from the [AI Gateway dashboard](https://vercel.com/ai-gateway).
+**Required for AI functionality:**
+Choose one AI provider and set its API key:
+- `AI_PROVIDER` - Set to `openai`, `anthropic`, or `google` (defaults to `openai`)
+- `OPENAI_API_KEY` - From [OpenAI Platform](https://platform.openai.com/api-keys)
+- `ANTHROPIC_API_KEY` - From [Anthropic Console](https://console.anthropic.com/)
+- `GOOGLE_GENERATIVE_AI_API_KEY` - From [Google AI Studio](https://makersuite.google.com/app/apikey)
 
-Using AI Gateway isn't required, you can use any AI SDK model provider and its associated credentials.
+**Note:** You only need the API key for your chosen provider. The app supports switching between providers by changing the `AI_PROVIDER` environment variable.
+
+**Optional:**
+- `NETWORK` - Set to `base-sepolia` (testnet) or `base` (mainnet), defaults to `base-sepolia`
 
 3. Run `pnpm dev`
 
@@ -73,9 +84,21 @@ When you're ready to deploy your SaaS application to production, follow these st
 
 In your Vercel project settings (or during deployment), add all the necessary environment variables. Make sure to update the values for the production environment, including:
 
-- `CDP_API_KEY_ID`
-- `CDP_API_KEY_SECRET`
-- `CDP_WALLET_SECRET`
+**Required for payments:**
+- `CDP_API_KEY_ID` - Your Coinbase Developer Platform API key ID
+- `CDP_API_KEY_SECRET` - Your Coinbase Developer Platform API key secret
+- `CDP_WALLET_SECRET` - Your Coinbase Developer Platform wallet secret
+
+**Required for AI functionality:**
+- `AI_PROVIDER` - Set to `openai`, `anthropic`, or `google`
+- `OPENAI_API_KEY` - Your OpenAI API key
+- `ANTHROPIC_API_KEY` - Your Anthropic API key
+- `GOOGLE_GENERATIVE_AI_API_KEY` - Your Google AI API key
+
+**Note:** You only need the API key for your chosen provider. The app supports switching between providers by changing the `AI_PROVIDER` environment variable.
+
+**Optional:**
+- `NETWORK` - Set to `base` for mainnet production
 
 ## Moving to mainnet
 
