@@ -40,12 +40,12 @@ import {
 
 const models = [
   {
-    name: "GPT 4o",
-    value: "openai/gpt-4o",
+    name: "GPT-5 nano",
+    value: "gpt-5-nano",
   },
   {
-    name: "Gemini 2.0 Flash Lite",
-    value: "google/gemini-2.0-flash-lite",
+    name: "Gemini 2.0 Flash",
+    value: "gemini-2.0-flash",
   },
 ];
 const suggestions = {
@@ -95,8 +95,8 @@ const ChatBotDemo = () => {
       <div className="flex flex-col h-full">
         <Conversation className="h-full">
           <ConversationContent>
-            {messages.map((message) => (
-              <Message from={message.role} key={message.id}>
+            {messages.map((message, index) => (
+              <Message from={message.role} key={`${message.id}-${index}`}>
                 <MessageContent>
                   {message.parts.map((part, i) => {
                     if (part.type === "text") {
