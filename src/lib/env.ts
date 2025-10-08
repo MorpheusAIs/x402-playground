@@ -8,6 +8,12 @@ export const env = createEnv({
     CDP_API_KEY_SECRET: z.string(),
     NETWORK: z.enum(["base-sepolia", "base"]).default("base-sepolia"),
     URL: z.string().url().default("http://localhost:3000"),
+    // AI Provider API Keys (choose one or more)
+    OPENAI_API_KEY: z.string().optional(),
+    ANTHROPIC_API_KEY: z.string().optional(),
+    GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
+    // Default model provider (openai, anthropic, google)
+    AI_PROVIDER: z.enum(["openai", "anthropic", "google"]).default("openai"),
   },
 
   /**
@@ -22,6 +28,10 @@ export const env = createEnv({
     URL: process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : undefined,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+    GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    AI_PROVIDER: process.env.AI_PROVIDER,
   },
 
   /**
