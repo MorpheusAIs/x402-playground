@@ -6,6 +6,9 @@ if (!process.env.CI) {
 
 const nextConfig: NextConfig = {
   /* config options here */
+  turbopack: {
+    root: __dirname,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
