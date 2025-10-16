@@ -1,10 +1,11 @@
 import { env } from "@/lib/env";
 import * as cheerio from "cheerio";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { wrapFetchWithPayment } from "x402-fetch";
 import { chain, getOrCreatePurchaserAccount } from "@/lib/accounts";
 import { createWalletClient, http, type Account } from "viem";
-import { waitUntil } from "@vercel/functions";
+import { Effect, Stream } from "effect";
+import { sseResponseFromStream } from "@/lib/effect/runtime";
 
 type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
@@ -24,83 +25,58 @@ export async function GET(request: NextRequest) {
     request.nextUrl.searchParams.get("act-as-scraper") === "true";
   const job = request.nextUrl.searchParams.get("job");
 
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    start(controller) {
-      const log = (...args: unknown[]) => {
-        const message = args
-          .map((arg) => {
-            if (typeof arg === "string") {
-              return arg;
-            } else if (typeof arg === "object" && arg !== null) {
-              return JSON.stringify(arg, null, 2);
-            } else {
-              return String(arg);
-            }
-          })
-          .join(" ");
+  const loggedFetch = makeLoggedFetch((...args) => console.log(...args));
+  const paidOrPlainFetch = enablePayment
+    ? wrapFetchWithPayment(loggedFetch, walletClient as any)
+    : loggedFetch;
 
-        const sseData = `data: ${JSON.stringify({
-          timestamp: new Date().toISOString(),
-          message,
-        })}\n\n`;
+  const startEvent = () =>
+    JSON.stringify({
+      timestamp: new Date().toISOString(),
+      message: "initiating job",
+      job,
+    });
 
-        controller.enqueue(encoder.encode(sseData));
-        console.log(...args);
+  const jobEffect = Effect.tryPromise(async () => {
+    if (job === "scrape") {
+      const result = await scrapeJob(paidOrPlainFetch, isBot || actAsScraper);
+      return {
+        timestamp: new Date().toISOString(),
+        type: "result",
+        result,
       };
+    } else if (job === "math") {
+      const result = await mathJob(paidOrPlainFetch);
+      return {
+        timestamp: new Date().toISOString(),
+        type: "result",
+        result,
+      };
+    } else {
+      return {
+        timestamp: new Date().toISOString(),
+        type: "error",
+        error: "Invalid job",
+      };
+    }
+  }).pipe(
+    Effect.catchAll((err) =>
+      Effect.succeed({
+        timestamp: new Date().toISOString(),
+        type: "error",
+        error: err instanceof Error ? err.message : "Unknown error",
+      })
+    )
+  );
 
-      const loggedFetch = makeLoggedFetch(log);
-      const fetch = enablePayment
-        ? wrapFetchWithPayment(loggedFetch, walletClient as any) // TODO: fix type
-        : loggedFetch;
+  const stream = Stream.concat(
+    Stream.succeed(startEvent()),
+    Stream.unwrapEffect(
+      Effect.map(jobEffect, (evt) => Stream.succeed(JSON.stringify(evt)))
+    )
+  );
 
-      const jobPromise = (async () => {
-        try {
-          log("initiating job", job);
-          let result;
-          if (job === "scrape") {
-            result = await scrapeJob(fetch, isBot || actAsScraper);
-          } else if (job === "math") {
-            result = await mathJob(fetch);
-          } else {
-            log("Invalid job specified");
-            result = { error: "Invalid job" };
-          }
-
-          // Send final result
-          const finalData = `data: ${JSON.stringify({
-            timestamp: new Date().toISOString(),
-            type: "result",
-            result,
-          })}\n\n`;
-          controller.enqueue(encoder.encode(finalData));
-        } catch (error) {
-          const errorData = `data: ${JSON.stringify({
-            timestamp: new Date().toISOString(),
-            type: "error",
-            error: error instanceof Error ? error.message : "Unknown error",
-          })}\n\n`;
-          controller.enqueue(encoder.encode(errorData));
-        } finally {
-          controller.close();
-        }
-      })();
-
-      waitUntil(jobPromise);
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET",
-      "Access-Control-Allow-Headers":
-        "Content-Type, enable-payment, act-as-scraper",
-    },
-  });
+  return sseResponseFromStream(stream, (s) => s as string);
 }
 
 function makeLoggedFetch(
