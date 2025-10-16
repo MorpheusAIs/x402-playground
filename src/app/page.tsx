@@ -6,6 +6,7 @@ import {
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
+import { SiteHeader } from "@/components/site-header";
 import {
   PromptInput,
   PromptInputButton,
@@ -46,6 +47,10 @@ const models = [
   {
     name: "Gemini 2.0 Flash",
     value: "gemini-2.0-flash",
+  },
+  {
+    name: "Llama by Morpheus",
+    value: "llama-3.3-70b:web",
   },
 ];
 const suggestions = {
@@ -91,9 +96,13 @@ const ChatBotDemo = () => {
   };
 
   return (
-    <div className="w-full p-6 relative size-full max-w-4xl mx-auto">
-      <div className="flex flex-col h-full">
-        <Conversation className="h-full">
+    <>
+      <SiteHeader />
+      <div className="flex flex-1 flex-col p-4">
+        <div className="relative h-full p-6 max-w-4xl mx-auto w-full">
+          {/* Chat conversation area */}
+          <div className="h-[calc(100vh-var(--header-height)-16rem)] overflow-hidden">
+            <Conversation className="h-full">
           <ConversationContent>
             {messages.map((message, index) => (
               <Message from={message.role} key={`${message.id}-${index}`}>
@@ -145,62 +154,69 @@ const ChatBotDemo = () => {
             ))}
             {status === "submitted" && <Loader />}
             {status === "error" && <div>Something went wrong</div>}
-          </ConversationContent>
-          <ConversationScrollButton />
-        </Conversation>
+            </ConversationContent>
+            <ConversationScrollButton />
+          </Conversation>
+        </div>
 
-        <Suggestions className="justify-center">
-          {Object.keys(suggestions).map((suggestion) => (
-            <Suggestion
-              key={suggestion}
-              suggestion={suggestion}
-              onClick={() =>
-                handleSuggestionClick(suggestion as keyof typeof suggestions)
-              }
-              variant="outline"
-              size="sm"
+        {/* Fixed bottom area for suggestions and input */}
+        <div className="mt-auto border-t pt-4 pb-6 bg-background">
+          <div className="max-w-4xl mx-auto px-6">
+          <Suggestions className="justify-center mb-4">
+            {Object.keys(suggestions).map((suggestion) => (
+              <Suggestion
+                key={suggestion}
+                suggestion={suggestion}
+                onClick={() =>
+                  handleSuggestionClick(suggestion as keyof typeof suggestions)
+                }
+                variant="outline"
+                size="sm"
+              />
+            ))}
+          </Suggestions>
+
+          <PromptInput onSubmit={handleSubmit}>
+            <PromptInputTextarea
+              onChange={(e) => setInput(e.target.value)}
+              value={input}
+              ref={(ref) => {
+                if (ref) {
+                  ref.focus();
+                }
+              }}
             />
-          ))}
-        </Suggestions>
-
-        <PromptInput onSubmit={handleSubmit} className="mt-4">
-          <PromptInputTextarea
-            onChange={(e) => setInput(e.target.value)}
-            value={input}
-            ref={(ref) => {
-              if (ref) {
-                ref.focus();
-              }
-            }}
-          />
-          <PromptInputToolbar>
-            <PromptInputTools>
-              <PromptInputModelSelect
-                onValueChange={(value) => {
-                  setModel(value);
-                }}
-                value={model}
-              >
-                <PromptInputModelSelectTrigger>
-                  <PromptInputModelSelectValue />
-                </PromptInputModelSelectTrigger>
-                <PromptInputModelSelectContent>
-                  {models.map((model) => (
-                    <PromptInputModelSelectItem
-                      key={model.value}
-                      value={model.value}
-                    >
-                      {model.name}
-                    </PromptInputModelSelectItem>
-                  ))}
-                </PromptInputModelSelectContent>
-              </PromptInputModelSelect>
-            </PromptInputTools>
-            <PromptInputSubmit disabled={!input} status={status} />
-          </PromptInputToolbar>
-        </PromptInput>
+            <PromptInputToolbar>
+              <PromptInputTools>
+                <PromptInputModelSelect
+                  onValueChange={(value) => {
+                    setModel(value);
+                  }}
+                  value={model}
+                >
+                  <PromptInputModelSelectTrigger>
+                    <PromptInputModelSelectValue />
+                  </PromptInputModelSelectTrigger>
+                  <PromptInputModelSelectContent>
+                    {models.map((model) => (
+                      <PromptInputModelSelectItem
+                        key={model.value}
+                        value={model.value}
+                      >
+                        {model.name}
+                      </PromptInputModelSelectItem>
+                    ))}
+                  </PromptInputModelSelectContent>
+                </PromptInputModelSelect>
+              </PromptInputTools>
+              <PromptInputSubmit disabled={!input} status={status} />
+            </PromptInputToolbar>
+          </PromptInput>
+          </div>
+        </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
