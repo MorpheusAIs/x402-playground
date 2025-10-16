@@ -12,6 +12,7 @@ export const env = createEnv({
     OPENAI_API_KEY: z.string().optional(),
     ANTHROPIC_API_KEY: z.string().optional(),
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
+    MORPHEUS_AI_API_KEY: z.string().optional(),
     // Default model provider (openai, anthropic, google)
     AI_PROVIDER: z.enum(["openai", "anthropic", "google"]).default("openai"),
   },
@@ -31,6 +32,7 @@ export const env = createEnv({
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    MORPHEUS_AI_API_KEY: process.env.MORPHEUS_AI_API_KEY,
     AI_PROVIDER: process.env.AI_PROVIDER,
   },
 
