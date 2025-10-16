@@ -1,0 +1,2429 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Morpheus API Gateway",
+        "description": "API Gateway connecting Web2 clients to the Morpheus-Lumerin AI Marketplace",
+        "version": "v1.1.1-test"
+    },
+    "servers": [
+        {
+          "url": "https://api.dev.mor.org/api/v1/"
+        }
+    ],
+    "navigation": {
+        "groups": [{
+          "group": "API reference",
+          "openapi": "openapi.json"
+        }]
+    },
+    "paths": {
+        "/api/v1/auth/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get Current User Info",
+                "description": "Get current user information.\n\nRequires JWT Bearer authentication with Cognito token.\nUser data is automatically kept up-to-date during authentication.",
+                "operationId": "get_current_user_info_api_v1_auth_me_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Get Current User Info Api V1 Auth Me Get"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/keys": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get Api Keys",
+                "description": "Get all API keys for the current user.\n\nRequires JWT Bearer authentication with the token received from the login endpoint.",
+                "operationId": "get_api_keys_api_v1_auth_keys_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/APIKeyDB"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Get Api Keys Api V1 Auth Keys Get"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Create Api Key",
+                "description": "Create a new API key for the current user.\n\nRequires JWT Bearer authentication with the token received from the login endpoint.",
+                "operationId": "create_api_key_api_v1_auth_keys_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/APIKeyCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIKeyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/keys/{key_id}": {
+            "delete": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Delete Api Key",
+                "description": "Deactivate an API key.\n\nRequires JWT Bearer authentication with the token received from the login endpoint.",
+                "operationId": "delete_api_key_api_v1_auth_keys__key_id__delete",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                    "name": "key_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer",
+                        "title": "Key Id"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIKeyDB"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/private-key": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get Private Key Status",
+                "description": "Check if a user has a private key registered.\nDoes not return the actual key, only status information.",
+                "operationId": "get_private_key_status_api_v1_auth_private_key_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PrivateKeyStatus"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Store Private Key",
+                "description": "Store an encrypted blockchain private key for the authenticated user.\nReplaces any existing key.",
+                "operationId": "store_private_key_api_v1_auth_private_key_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PrivateKeyCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Store Private Key Api V1 Auth Private Key Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Delete Private Key",
+                "description": "Delete a user's private key.",
+                "operationId": "delete_private_key_api_v1_auth_private_key_delete",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Delete Private Key Api V1 Auth Private Key Delete"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/delegation": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Store Delegation",
+                "description": "Allows an authenticated user to store a signed delegation.\nThe frontend should construct and sign the delegation using the Gator SDK.",
+                "operationId": "store_delegation_api_v1_auth_delegation_post",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DelegationCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DelegationRead"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get User Delegations",
+                "description": "Retrieves the user's stored delegations.",
+                "operationId": "get_user_delegations_api_v1_auth_delegation_get",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DelegationRead"
+                                    },
+                                    "title": "Response Get User Delegations Api V1 Auth Delegation Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/delegation/active": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get Active User Delegation",
+                "description": "Retrieves the user's currently active delegation, if any.",
+                "operationId": "get_active_user_delegation_api_v1_auth_delegation_active_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [{
+                                            "$ref": "#/components/schemas/DelegationRead"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "title": "Response Get Active User Delegation Api V1 Auth Delegation Active Get"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/delegation/{delegation_id}": {
+            "delete": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Delete Delegation",
+                "description": "Deletes a specific delegation for the user.\nAlternatively, could just mark it inactive.",
+                "operationId": "delete_delegation_api_v1_auth_delegation__delegation_id__delete",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                    "name": "delegation_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer",
+                        "title": "Delegation Id"
+                    }
+                }],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/register": {
+            "delete": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Delete User Account",
+                "description": "Delete the current user's account and all associated data.\n\nThis action is irreversible and will:\n1. Delete all sessions\n2. Delete all API keys\n3. Delete private key data (via cascade)\n4. Delete automation settings (via cascade)\n5. Delete delegation data (via cascade)\n6. Delete the user account\n7. Delete/deactivate the Cognito identity\n\nRequires JWT Bearer authentication.",
+                "operationId": "delete_user_account_api_v1_auth_register_delete",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDeletionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/keys/first": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get First Api Key",
+                "description": "Get the first (oldest) active API key for the current user.\nThis is used for automatic API key selection on login.\n\nRequires JWT Bearer authentication with the token received from the login endpoint.",
+                "operationId": "get_first_api_key_api_v1_auth_keys_first_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [{
+                                            "$ref": "#/components/schemas/APIKeyDB"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "title": "Response Get First Api Key Api V1 Auth Keys First Get"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/keys/default": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get Default Api Key",
+                "description": "Get the user's default API key. If no default is set, returns the first (oldest) active API key.\nThis respects user preference for default key selection.\n\nRequires JWT Bearer authentication with the token received from the login endpoint.",
+                "operationId": "get_default_api_key_api_v1_auth_keys_default_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [{
+                                            "$ref": "#/components/schemas/APIKeyDB"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "title": "Response Get Default Api Key Api V1 Auth Keys Default Get"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/keys/{key_id}/default": {
+            "put": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Set Default Api Key",
+                "description": "Set an API key as the user's default. Clears any existing default.\n\nRequires JWT Bearer authentication with the token received from the login endpoint.",
+                "operationId": "set_default_api_key_api_v1_auth_keys__key_id__default_put",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                    "name": "key_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "integer",
+                        "title": "Key Id"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIKeyDB"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/keys/default/decrypted": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get Default Api Key Decrypted",
+                "description": "Get the user's default API key with the full decrypted key for auto-selection.\n\nThis endpoint returns the full API key to enable seamless Chat/Test access.\nThe key is decrypted using the user's Cognito data for security.\n\nRequires JWT Bearer authentication with the token received from the login endpoint.",
+                "operationId": "get_default_api_key_decrypted_api_v1_auth_keys_default_decrypted_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/models": {
+            "get": {
+                "tags": [
+                    "Models"
+                ],
+                "summary": "List Models",
+                "description": "Get a list of active models.\n\nResponse is in OpenAI API format with selected fields from the blockchain data.\nOnly returns active models with available providers.",
+                "operationId": "list_models_api_v1_models_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/models/allmodels": {
+            "get": {
+                "tags": [
+                    "Models"
+                ],
+                "summary": "List All Models",
+                "description": "Get a list of all available models.\n\nResponse is in OpenAI API format with selected fields from the blockchain data.\nOnly returns non-deleted models.",
+                "operationId": "list_all_models_api_v1_models_allmodels_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/models/ratedbids": {
+            "get": {
+                "tags": [
+                    "Models"
+                ],
+                "summary": "Get Rated Bids",
+                "description": "Get rated bids for a specific model.\n\nConnects to the proxy-router's /blockchain/models/{id}/bids/rated endpoint.\nNote: Use the blockchain model ID (hex) not the name.",
+                "operationId": "get_rated_bids_api_v1_models_ratedbids_get",
+                "parameters": [{
+                    "name": "model_id",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "description": "The blockchain ID (hex) of the model to get rated bids for, e.g. 0x1234...",
+                        "title": "Model Id"
+                    },
+                    "description": "The blockchain ID (hex) of the model to get rated bids for, e.g. 0x1234..."
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat/completions": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Create Chat Completion",
+                "description": "Create a chat completion with automatic session creation if enabled.\n\nSupports both streaming and non-streaming responses based on the 'stream' parameter.\nTool calling is supported but may work better with streaming enabled.",
+                "operationId": "create_chat_completion_api_v1_chat_completions_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChatCompletionRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/session/approve": {
+            "post": {
+                "tags": [
+                    "Session"
+                ],
+                "summary": "Approve Spending",
+                "description": "Approve the contract to spend MOR tokens on your behalf.\n\nConnects to the proxy-router's /blockchain/approve endpoint.\nFor creating sessions, approve enough tokens by calculating: bid_price * session_duration.\nUses the DIAMOND_CONTRACT_ADDRESS environment variable as the spender contract address.",
+                "operationId": "approve_spending_api_v1_session_approve_post",
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ],
+                "parameters": [{
+                    "name": "amount",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "integer",
+                        "description": "The amount to approve, consider bid price * duration for sessions",
+                        "title": "Amount"
+                    },
+                    "description": "The amount to approve, consider bid price * duration for sessions"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/session/bidsession": {
+            "post": {
+                "tags": [
+                    "Session"
+                ],
+                "summary": "Create Bid Session",
+                "description": "Create a session with a provider using a bid ID and associate it with the API key.\n\nThis endpoint creates a session and automatically associates it with the API key used for authentication.\nEach API key can have at most one active session at a time.",
+                "operationId": "create_bid_session_api_v1_session_bidsession_post",
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ],
+                "parameters": [{
+                    "name": "bid_id",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "description": "The blockchain ID (hex) of the bid to create a session for",
+                        "title": "Bid Id"
+                    },
+                    "description": "The blockchain ID (hex) of the bid to create a session for"
+                }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SessionDataRequest",
+                                "description": "Session data including duration and payment options"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/session/modelsession": {
+            "post": {
+                "tags": [
+                    "Session"
+                ],
+                "summary": "Create Model Session",
+                "description": "Create a session with a provider using a model ID and associate it with the API key.\n\nThis endpoint creates a session and automatically associates it with the API key used for authentication.\nEach API key can have at most one active session at a time.",
+                "operationId": "create_model_session_api_v1_session_modelsession_post",
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ],
+                "parameters": [{
+                    "name": "model_id",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "description": "The blockchain ID (hex) of the model to create a session for",
+                        "title": "Model Id"
+                    },
+                    "description": "The blockchain ID (hex) of the model to create a session for"
+                }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SessionDataRequest",
+                                "description": "Session data including duration and payment options"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/session/closesession": {
+            "post": {
+                "tags": [
+                    "Session"
+                ],
+                "summary": "Close Session",
+                "description": "Close the session associated with the current API key.",
+                "operationId": "close_session_api_v1_session_closesession_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/session/pingsession": {
+            "post": {
+                "tags": [
+                    "Session"
+                ],
+                "summary": "Ping Session",
+                "description": "Ping the session by attempting a simple chat completion.\nIf the chat completion fails, the session is considered dead and will be closed.",
+                "operationId": "ping_session_api_v1_session_pingsession_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/automation/settings": {
+            "get": {
+                "tags": [
+                    "Automation"
+                ],
+                "summary": "Get Automation Settings",
+                "description": "Get automation settings for the authenticated user.",
+                "operationId": "get_automation_settings_api_v1_automation_settings_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AutomationSettings"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Automation"
+                ],
+                "summary": "Update Automation Settings",
+                "description": "Update automation settings for the authenticated user.",
+                "operationId": "update_automation_settings_api_v1_automation_settings_put",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AutomationSettingsBase"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AutomationSettings"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/chat-history/chats": {
+            "post": {
+                "summary": "Create Chat",
+                "description": "Create a new chat conversation.",
+                "operationId": "create_chat_api_v1_chat_history_chats_post",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChatCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get User Chats",
+                "description": "Get all chats for the current user.",
+                "operationId": "get_user_chats_api_v1_chat_history_chats_get",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 50,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ChatResponse"
+                                    },
+                                    "title": "Response Get User Chats Api V1 Chat History Chats Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/chat-history/chats/{chat_id}": {
+            "get": {
+                "summary": "Get Chat",
+                "description": "Get a specific chat with all messages.",
+                "operationId": "get_chat_api_v1_chat_history_chats__chat_id__get",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                    "name": "chat_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "title": "Chat Id"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update Chat",
+                "description": "Update chat title.",
+                "operationId": "update_chat_api_v1_chat_history_chats__chat_id__put",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                    "name": "chat_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "title": "Chat Id"
+                    }
+                }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChatUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete Chat",
+                "description": "Delete or archive a chat.",
+                "operationId": "delete_chat_api_v1_chat_history_chats__chat_id__delete",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                        "name": "chat_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Chat Id"
+                        }
+                    },
+                    {
+                        "name": "archive_only",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true,
+                            "title": "Archive Only"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/chat-history/chats/{chat_id}/messages": {
+            "post": {
+                "summary": "Create Message",
+                "description": "Add a message to a chat.",
+                "operationId": "create_message_api_v1_chat_history_chats__chat_id__messages_post",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                    "name": "chat_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "title": "Chat Id"
+                    }
+                }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MessageCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get Chat Messages",
+                "description": "Get messages for a specific chat.",
+                "operationId": "get_chat_messages_api_v1_chat_history_chats__chat_id__messages_get",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                        "name": "chat_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Chat Id"
+                        }
+                    },
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MessageResponse"
+                                    },
+                                    "title": "Response Get Chat Messages Api V1 Chat History Chats  Chat Id  Messages Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/chat-history/messages/{message_id}": {
+            "delete": {
+                "summary": "Delete Message",
+                "description": "Delete a specific message.",
+                "operationId": "delete_message_api_v1_chat_history_messages__message_id__delete",
+                "security": [{
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [{
+                    "name": "message_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "title": "Message Id"
+                    }
+                }],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/": {
+            "get": {
+                "summary": "Root",
+                "description": "Root endpoint returning basic API information.",
+                "operationId": "root__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Health check endpoint with container diagnostics for deployment monitoring.\n\nReturns system health, uptime, and unique container identifier for support and log analysis.\nNote: No sensitive AWS or hostname information is exposed.",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health/models": {
+            "get": {
+                "summary": "Model Health Check",
+                "description": "Detailed model service health check for monitoring and debugging.\n\nReturns comprehensive information about the model fetching service,\ncache status, and available models for operational monitoring.",
+                "operationId": "model_health_check_health_models_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/cors-check": {
+            "get": {
+                "summary": "Cors Check",
+                "description": "CORS configuration test endpoint for ALB lb_cookie stickiness verification.\n\nThis endpoint helps verify that CORS is properly configured for cross-origin\nrequests with credentials, which is required for AWS ALB sticky sessions.\n\nReturns CORS configuration details and request information for debugging.",
+                "operationId": "cors_check_cors_check_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                        "APIKeyAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "APIKeyCreate": {
+                "properties": {
+                    "name": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    }
+                },
+                "type": "object",
+                "title": "APIKeyCreate",
+                "description": "Schema for API key creation request."
+            },
+            "APIKeyDB": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "key_prefix": {
+                        "type": "string",
+                        "title": "Key Prefix"
+                    },
+                    "name": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "title": "Is Active"
+                    },
+                    "is_default": {
+                        "type": "boolean",
+                        "title": "Is Default",
+                        "default": false
+                    },
+                    "encrypted_key": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Encrypted Key"
+                    },
+                    "encryption_version": {
+                        "type": "integer",
+                        "title": "Encryption Version",
+                        "default": 1
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "key_prefix",
+                    "created_at",
+                    "is_active"
+                ],
+                "title": "APIKeyDB",
+                "description": "Schema for API key in database response."
+            },
+            "APIKeyResponse": {
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "title": "Key"
+                    },
+                    "key_prefix": {
+                        "type": "string",
+                        "title": "Key Prefix"
+                    },
+                    "name": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "key",
+                    "key_prefix"
+                ],
+                "title": "APIKeyResponse",
+                "description": "Schema for API key response."
+            },
+            "AutomationSettings": {
+                "properties": {
+                    "is_enabled": {
+                        "anyOf": [{
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Is Enabled",
+                        "default": true
+                    },
+                    "session_duration": {
+                        "anyOf": [{
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Session Duration",
+                        "default": 3600
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "user_id",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "AutomationSettings",
+                "example": {
+                    "is_enabled": true,
+                    "session_duration": 3600
+                }
+            },
+            "AutomationSettingsBase": {
+                "properties": {
+                    "is_enabled": {
+                        "anyOf": [{
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Is Enabled",
+                        "default": true
+                    },
+                    "session_duration": {
+                        "anyOf": [{
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Session Duration",
+                        "default": 3600
+                    }
+                },
+                "type": "object",
+                "title": "AutomationSettingsBase",
+                "example": {
+                    "is_enabled": true,
+                    "session_duration": 3600
+                }
+            },
+            "ChatCompletionRequest": {
+                "properties": {
+                    "model": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Model"
+                    },
+                    "messages": {
+                        "items": {
+                            "$ref": "#/components/schemas/ChatMessage"
+                        },
+                        "type": "array",
+                        "title": "Messages"
+                    },
+                    "temperature": {
+                        "anyOf": [{
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Temperature",
+                        "default": 1
+                    },
+                    "top_p": {
+                        "anyOf": [{
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Top P",
+                        "default": 1
+                    },
+                    "n": {
+                        "anyOf": [{
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "N",
+                        "default": 1
+                    },
+                    "stream": {
+                        "anyOf": [{
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Stream",
+                        "default": false
+                    },
+                    "stop": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Stop"
+                    },
+                    "max_tokens": {
+                        "anyOf": [{
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Max Tokens"
+                    },
+                    "presence_penalty": {
+                        "anyOf": [{
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Presence Penalty",
+                        "default": 0
+                    },
+                    "frequency_penalty": {
+                        "anyOf": [{
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Frequency Penalty",
+                        "default": 0
+                    },
+                    "tools": {
+                        "anyOf": [{
+                                "items": {
+                                    "$ref": "#/components/schemas/Tool"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tools"
+                    },
+                    "tool_choice": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "$ref": "#/components/schemas/ToolChoice"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tool Choice"
+                    },
+                    "session_id": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Session Id",
+                        "description": "Optional session ID to use for this request. If not provided, the system will use the session associated with the API key."
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "messages"
+                ],
+                "title": "ChatCompletionRequest",
+                "description": "Request payload for chat completions.\n\nNote: Field defaults and names must remain unchanged for API parity."
+            },
+            "ChatCreate": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 200,
+                        "title": "Title",
+                        "description": "Chat title"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "title"
+                ],
+                "title": "ChatCreate"
+            },
+            "ChatDetailResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    },
+                    "messages": {
+                        "items": {
+                            "$ref": "#/components/schemas/MessageResponse"
+                        },
+                        "type": "array",
+                        "title": "Messages",
+                        "default": []
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "title",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ChatDetailResponse"
+            },
+            "ChatMessage": {
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "title": "Role"
+                    },
+                    "content": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Content"
+                    },
+                    "name": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "tool_calls": {
+                        "anyOf": [{
+                                "items": {
+                                    "additionalProperties": true,
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tool Calls"
+                    },
+                    "tool_call_id": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tool Call Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "role"
+                ],
+                "title": "ChatMessage",
+                "description": "Represents a single chat message in the OpenAI-compatible schema."
+            },
+            "ChatResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    },
+                    "message_count": {
+                        "anyOf": [{
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Message Count"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "title",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ChatResponse"
+            },
+            "ChatUpdate": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 200,
+                        "title": "Title",
+                        "description": "Updated chat title"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "title"
+                ],
+                "title": "ChatUpdate"
+            },
+            "DelegationCreate": {
+                "properties": {
+                    "delegate_address": {
+                        "type": "string",
+                        "title": "Delegate Address"
+                    },
+                    "signed_delegation_data": {
+                        "type": "string",
+                        "title": "Signed Delegation Data"
+                    },
+                    "expiry": {
+                        "anyOf": [{
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Expiry"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "title": "Is Active",
+                        "default": true
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "delegate_address",
+                    "signed_delegation_data"
+                ],
+                "title": "DelegationCreate"
+            },
+            "DelegationRead": {
+                "properties": {
+                    "delegate_address": {
+                        "type": "string",
+                        "title": "Delegate Address"
+                    },
+                    "signed_delegation_data": {
+                        "type": "string",
+                        "title": "Signed Delegation Data"
+                    },
+                    "expiry": {
+                        "anyOf": [{
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Expiry"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "title": "Is Active",
+                        "default": true
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "delegate_address",
+                    "signed_delegation_data",
+                    "id",
+                    "user_id",
+                    "created_at"
+                ],
+                "title": "DelegationRead"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "MessageCreate": {
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "title": "Role",
+                        "description": "Message role: 'user' or 'assistant'"
+                    },
+                    "content": {
+                        "type": "string",
+                        "title": "Content",
+                        "description": "Message content"
+                    },
+                    "tokens": {
+                        "anyOf": [{
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tokens",
+                        "description": "Token count for billing"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "role",
+                    "content"
+                ],
+                "title": "MessageCreate"
+            },
+            "MessageResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "role": {
+                        "type": "string",
+                        "title": "Role"
+                    },
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    },
+                    "sequence": {
+                        "type": "integer",
+                        "title": "Sequence"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "tokens": {
+                        "anyOf": [{
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tokens"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "role",
+                    "content",
+                    "sequence",
+                    "created_at"
+                ],
+                "title": "MessageResponse"
+            },
+            "PrivateKeyCreate": {
+                "properties": {
+                    "private_key": {
+                        "type": "string",
+                        "title": "Private Key",
+                        "description": "User's blockchain private key"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "private_key"
+                ],
+                "title": "PrivateKeyCreate",
+                "description": "Schema for creating a private key entry"
+            },
+            "PrivateKeyStatus": {
+                "properties": {
+                    "has_key": {
+                        "type": "boolean",
+                        "title": "Has Key"
+                    },
+                    "created_at": {
+                        "anyOf": [{
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [{
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "has_key"
+                ],
+                "title": "PrivateKeyStatus",
+                "description": "Schema for private key status response"
+            },
+            "SessionDataRequest": {
+                "properties": {
+                    "sessionDuration": {
+                        "type": "integer",
+                        "title": "Sessionduration",
+                        "default": 3600
+                    },
+                    "directPayment": {
+                        "type": "boolean",
+                        "title": "Directpayment",
+                        "default": false
+                    },
+                    "failover": {
+                        "type": "boolean",
+                        "title": "Failover",
+                        "default": false
+                    }
+                },
+                "type": "object",
+                "title": "SessionDataRequest"
+            },
+            "Tool": {
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "title": "Type",
+                        "default": "function"
+                    },
+                    "function": {
+                        "$ref": "#/components/schemas/ToolFunction"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "function"
+                ],
+                "title": "Tool",
+                "description": "Tool wrapper for function-based tools (OpenAI-compatible)."
+            },
+            "ToolChoice": {
+                "properties": {
+                    "type": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Type",
+                        "default": "function"
+                    },
+                    "function": {
+                        "anyOf": [{
+                                "additionalProperties": true,
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Function"
+                    }
+                },
+                "type": "object",
+                "title": "ToolChoice",
+                "description": "Explicit tool selection for tool calling."
+            },
+            "ToolFunction": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "description": {
+                        "anyOf": [{
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "parameters": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Parameters",
+                        "default": {}
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "title": "ToolFunction",
+                "description": "Function definition for tool calling."
+            },
+            "UserDeletionResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "deleted_data": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Deleted Data"
+                    },
+                    "cognito_deletion": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Cognito Deletion"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    },
+                    "deleted_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Deleted At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message",
+                    "deleted_data",
+                    "cognito_deletion",
+                    "user_id",
+                    "deleted_at"
+                ],
+                "title": "UserDeletionResponse",
+                "description": "Schema for user deletion response",
+                "example": {
+                    "cognito_deletion": {
+                        "cognito_user_id": "abc123-def456-ghi789",
+                        "message": "User successfully deleted from Cognito",
+                        "success": true
+                    },
+                    "deleted_at": "2024-01-01T12:00:00Z",
+                    "deleted_data": {
+                        "api_keys": 3,
+                        "automation_settings": true,
+                        "delegations": 0,
+                        "private_key": true,
+                        "sessions": 2
+                    },
+                    "message": "User account successfully deleted",
+                    "user_id": 123
+                }
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [{
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        },
+        "securitySchemes": {
+            "APIKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "Authorization",
+                "description": "API key authentication in format: 'Bearer sk-xxxxxx'"
+            },
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "JWT Bearer token from OAuth2 login"
+            },
+            "OAuth2": {
+                "type": "oauth2",
+                "flows": {
+                    "authorizationCode": {
+                        "authorizationUrl": "https://auth.mor.org/oauth2/authorize",
+                        "tokenUrl": "https://auth.mor.org/oauth2/token",
+                        "scopes": {
+                            "openid": "OpenID Connect authentication",
+                            "email": "Access to email address",
+                            "profile": "Access to profile information"
+                        }
+                    }
+                },
+                "description": "OAuth2 authentication via secure identity provider"
+            }
+        }
+    }
+}
