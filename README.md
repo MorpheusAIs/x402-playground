@@ -31,6 +31,135 @@ This template built with [Next.js](https://nextjs.org), [AI SDK](https://ai-sdk.
 - [x402](https://x402.org) - Accountless payments protocol
 - [MCP](https://modelcontextprotocol.io/) - Model Context Protocol
 
+## MCP Servers and Paid Tools
+
+This project demonstrates a sophisticated integration of MCP (Model Context Protocol) servers with x402 payments, allowing AI models to use both free and paid tools seamlessly.
+
+### Architecture Overview
+
+The system consists of three main components:
+
+1. **MCP Server** (`/src/app/mcp/route.ts`): Defines available tools and handles payment logic
+2. **Chat API** (`/src/app/api/chat/route.ts`): Creates MCP client and wraps it with payment functionality
+3. **Wallet Management** (`/src/lib/accounts.ts`): Manages Coinbase CDP wallets for payments
+
+### Current Tools
+
+The project includes these example tools:
+
+**Paid Tools** (require 0.001 USDC per call):
+- `get_random_number` - Generates a random number between two values
+- `add` - Adds two numbers together
+
+**Free Tools**:
+- `hello-remote` - Returns a greeting (served via MCP server)
+- `hello-local` - Returns a greeting (defined locally in chat API)
+
+### Adding Custom MCP Servers
+
+#### Adding Unpaid Tools
+
+To add a free tool to the MCP server:
+
+```typescript
+// In /src/app/mcp/route.ts
+const handler = createPaidMcpHandler(
+  (server) => {
+    // Add your unpaid tool
+    server.tool(
+      "your-tool-name",
+      "Description of what your tool does",
+      {
+        // Input schema using Zod
+        parameter: z.string().describe("Description of parameter"),
+      },
+      async (args) => {
+        // Tool implementation
+        const result = await yourToolImplementation(args);
+        return {
+          content: [{ type: "text", text: result.toString() }],
+        };
+      }
+    );
+
+    // ... existing tools
+  },
+  // ... rest of configuration
+);
+```
+
+#### Adding Paid Tools
+
+To add a tool that requires payment:
+
+```typescript
+// In /src/app/mcp/route.ts
+const handler = createPaidMcpHandler(
+  (server) => {
+    // Add your paid tool
+    server.paidTool(
+      "your-paid-tool-name",
+      "Description of what your paid tool does",
+      { price: 0.01 }, // Price in USDC
+      {
+        // Input schema using Zod
+        parameter: z.string().describe("Description of parameter"),
+      },
+      {}, // Additional options (reserved for future use)
+      async (args) => {
+        // Tool implementation
+        const result = await yourPaidToolImplementation(args);
+        return {
+          content: [{ type: "text", text: result.toString() }],
+        };
+      }
+    );
+
+    // ... existing tools
+  },
+  // ... rest of configuration
+);
+```
+
+#### Payment Configuration
+
+The payment system is configured in the MCP server creation:
+
+```typescript
+{
+  recipient: sellerAccount.address, // Your Coinbase CDP wallet address
+  facilitator, // x402 facilitator for payment processing
+  network: env.NETWORK, // 'base-sepolia' for testing, 'base' for mainnet
+}
+```
+
+### Payment Flow
+
+When an AI model calls a paid tool:
+
+1. **Tool Selection**: AI model chooses to use a paid tool
+2. **Payment Authorization**: x402 protocol initiates payment from purchaser account
+3. **Transaction Processing**: Coinbase CDP processes the USDC payment (default: 0.001 USDC)
+4. **Tool Execution**: Once payment is confirmed, the tool runs and returns results
+5. **Revenue Distribution**: Funds are transferred to the seller account
+
+### Tool Registration
+
+All MCP server tools are automatically available to AI models through the chat interface. The system:
+
+- **Discovers tools** dynamically from the MCP server
+- **Handles payment processing** transparently
+- **Provides real-time feedback** on payment status
+- **Supports both free and paid tools** in the same interface
+
+### Best Practices
+
+- **Input Validation**: Always use Zod schemas to validate tool inputs
+- **Error Handling**: Implement proper error handling in tool functions
+- **Pricing Strategy**: Set appropriate prices based on tool complexity and value
+- **Testing**: Test tools on `base-sepolia` before deploying to mainnet
+- **Monitoring**: Monitor tool usage and payment transactions in Coinbase CDP dashboard
+
 ## Getting Started
 
 ```bash
